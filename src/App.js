@@ -1,56 +1,34 @@
 import './App.css';
-import {Button, Input} from "@material-tailwind/react";
-import axios from "axios";
-import {useState} from "react";
-import * as sweetalert2 from "sweetalert2";
-import Swal2 from "sweetalert2";
-import CarCardList from "./components/CarCardList";
 import Register from "./pages/Register";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import CarDetails from "./pages/CarDetails";
 import InsurancePage from "./pages/InsurancePage";
+import MyCars from "./pages/MyCars";
 
 // localhost:8080/api/v1/users
 
 function App() {
-
-    const [data, setData] = useState("")
-
-    const [cars, setCars] = useState([])
-
-    const handleSubmit = () => {
-        const options = {
-            method: 'GET',
-            url: 'http://localhost:8080/api/v1/users'
-        }
-
-        axios.request(options).then((res) => {
-                console.log(res)
-            }
-        )
-            .catch((err) => {
-                console.log(err)
-            })
-    }
-
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/register"
-                       element={<Register />} />
+                       element={<Register/>}/>
                 <Route path="/"
-                       element={<Home />} />
+                       element={<Home/>}/>
 
                 <Route path="/sign-in"
-                       element={<SignIn /> } />
+                       element={<SignIn/>}/>
 
                 <Route path="/cars/:carId"
-                       element={<CarDetails /> } />
+                       element={<CarDetails/>}/>
 
                 <Route path="/insurance"
-                       element={<InsurancePage />} />
+                       element={<InsurancePage/>}/>
+
+                <Route path="/my-cars"
+                       element={<MyCars/>}/>
 
             </Routes>
         </BrowserRouter>

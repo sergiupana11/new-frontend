@@ -6,24 +6,27 @@ import axios from "axios";
 import {Button, Carousel, Spinner, Typography} from "@material-tailwind/react";
 import defaultImage from '../images/defaultImage.jpeg';
 import DateTimePicker from "../components/DateTimePicker";
-import { parseISO, isBefore } from 'date-fns';
+import {isBefore, parseISO} from 'date-fns';
 import Swal2 from "sweetalert2";
 import {checkInsuranceEligibility} from "../utils/constants";
+import {toSentenceCase} from "../utils/stringUtils";
 
 // TODO: similar to Insurance, calculate the price and display it to the user before making the request
 //  - create my-cars page with the function to add new cars with images
 //  - create my-rentals page where you can see your rental offers and offers to accept / decline
 //  - on the my-rentals page, if you are the renter, you can cancel the request no matter the status (ACCEPTED or PENDING)
-//                          - if you are the renter, you can only ACCEPT / DECLINE if it is PENDING, or CANCEL if it is ACCEPTED
+//                            if you are the renter, you can only ACCEPT / DECLINE if it is PENDING, or CANCEL if it is ACCEPTED
 //  - profile page where you can see your personal information and reviews, both given by you to others and given by others to you
 //  - on my-rentals page, add a button to create review (use form dialog modal)
 //  - for ADMIN user, when logging in (so in the SignIn page) redirect him to /admin page where he can add insurance companies
 //  - add option to edit or at least delete a car
+//  - on insurance page, check if the user has an active insurance. If yes, display his current insurance's details. else,
+//                                                                  display form to create a new one
 
 export default function CarDetails() {
 
     const navigate = useNavigate()
-    const { carId } = useParams();
+    const {carId} = useParams();
 
     const [carDetails, setCarDetails] = useState({
         id: '',
@@ -60,11 +63,6 @@ export default function CarDetails() {
         price: '',
     })
     const [jwt, setJwt] = useState(localStorage.getItem('jwt'))
-
-    function toSentenceCase(str) {
-        str = str.toLowerCase();
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
 
     useEffect(() => {
         const newJwt = localStorage.getItem('jwt')
@@ -196,12 +194,12 @@ export default function CarDetails() {
 
     return (
         <div>
-            <NavbarSimple />
+            <NavbarSimple/>
             <div className="flex flex-row justify-center">
                 {
                     loading ? (
                         <div className="flex justify-center items-center w-full h-full">
-                            <Spinner className="h-12 w-12" />
+                            <Spinner className="h-12 w-12"/>
                         </div>
                     ) : (
                         <div>
@@ -226,7 +224,8 @@ export default function CarDetails() {
                                         </Typography>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-8 mx-4 bg-gray-200 rounded-xl text-center p-8 shadow-xl">
+                                    <div
+                                        className="grid grid-cols-3 gap-8 mx-4 bg-gray-200 rounded-xl text-center p-8 shadow-xl">
                                         <div><strong>Fuel Type:</strong> {carDetails.fuelType}</div>
                                         <div><strong>Horsepower:</strong> {carDetails.horsepower} HP</div>
                                         <div><strong>Price:</strong> {carDetails.price} € / day</div>
@@ -260,7 +259,8 @@ export default function CarDetails() {
                                                                     value={startDate}/>
                                                 </div>
                                                 <div className="m-2">
-                                                    <DateTimePicker label="End date" onChange={setEndDate} minDate={startDate}
+                                                    <DateTimePicker label="End date" onChange={setEndDate}
+                                                                    minDate={startDate}
                                                                     value={endDate}/>
                                                 </div>
                                             </div>
@@ -274,8 +274,8 @@ export default function CarDetails() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
-                    </div>
                     )
                 }
             </div>
