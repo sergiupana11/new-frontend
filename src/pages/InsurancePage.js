@@ -2,10 +2,13 @@ import {NavbarSimple} from "../components/Navbar";
 import {Button, Typography} from "@material-tailwind/react";
 import InsuranceDialog from "../components/InsuranceDialog";
 import CreateInsuranceDialog from "../components/CreateInsuranceDialog";
+import {useState} from "react";
 
 export default function InsurancePage() {
 
+    const [insuranceData, setInsuranceData] = useState({
 
+    })
 
     return (
         <div>

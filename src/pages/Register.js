@@ -33,7 +33,7 @@ export default function Register() {
         console.log(formValues);
         try {
             const response = await axios.post(
-                '/api/v1/users',
+                'http://localhost:8080/api/v1/users',
                 formValues,
                 {
                     headers: {

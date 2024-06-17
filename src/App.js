@@ -23,7 +23,7 @@ function App() {
     const handleSubmit = () => {
         const options = {
             method: 'GET',
-            url: '/api/v1/users'
+            url: 'http://localhost:8080/api/v1/users'
         }
 
         axios.request(options).then((res) => {

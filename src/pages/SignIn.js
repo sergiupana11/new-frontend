@@ -23,7 +23,7 @@ export default function SignIn() {
         console.log(formValues);
         try {
             const response = await axios.post(
-                '/api/v1/users/sessions',
+                'http://localhost:8080/api/v1/users/sessions',
                 formValues,
                 {
                     headers: {

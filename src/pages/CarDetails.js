@@ -7,12 +7,22 @@ import {Button, Carousel, Spinner, Typography} from "@material-tailwind/react";
 import defaultImage from '../images/defaultImage.jpeg';
 import DateTimePicker from "../components/DateTimePicker";
 import { parseISO, isBefore } from 'date-fns';
-import Swal from "sweetalert2";
 import Swal2 from "sweetalert2";
+import {checkInsuranceEligibility} from "../utils/constants";
+
+// TODO: similar to Insurance, calculate the price and display it to the user before making the request
+//  - create my-cars page with the function to add new cars with images
+//  - create my-rentals page where you can see your rental offers and offers to accept / decline
+//  - on the my-rentals page, if you are the renter, you can cancel the request no matter the status (ACCEPTED or PENDING)
+//                          - if you are the renter, you can only ACCEPT / DECLINE if it is PENDING, or CANCEL if it is ACCEPTED
+//  - profile page where you can see your personal information and reviews, both given by you to others and given by others to you
+//  - on my-rentals page, add a button to create review (use form dialog modal)
+//  - for ADMIN user, when logging in (so in the SignIn page) redirect him to /admin page where he can add insurance companies
+//  - add option to edit or at least delete a car
 
 export default function CarDetails() {
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const { carId } = useParams();
 
     const [carDetails, setCarDetails] = useState({
@@ -38,7 +48,17 @@ export default function CarDetails() {
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [insuranceId, setInsuranceId] = useState(null);
+    const [insuranceData, setInsuranceData] = useState({
+        id: '',
+        beneficiaryId: '',
+        beneficiaryName: '',
+        insuranceCompanyId: '',
+        insuranceCompanyName: '',
+        insuranceType: '',
+        startDate: '',
+        endDate: '',
+        price: '',
+    })
     const [jwt, setJwt] = useState(localStorage.getItem('jwt'))
 
     function toSentenceCase(str) {
@@ -48,7 +68,7 @@ export default function CarDetails() {
 
     useEffect(() => {
         const newJwt = localStorage.getItem('jwt')
-        if (newJwt != jwt) {
+        if (newJwt !== jwt) {
             setJwt(newJwt)
         }
         if (!jwt) {
@@ -64,8 +84,12 @@ export default function CarDetails() {
                 }
             }
         ).then((res) => {
-            setInsuranceId(res.data)
+            setInsuranceData(res.data)
         }).catch(() => {
+            setInsuranceData({
+                ...insuranceData,
+                id: 'no-insurance'
+            })
         })
 
         const options = {
@@ -109,7 +133,7 @@ export default function CarDetails() {
         }).finally(() => {
             setLoading(false);
         });
-    }, [carId, jwt, navigate]);
+    }, [carId, insuranceData, jwt, navigate]);
 
     const handleStartDateChange = (newStartDate) => {
         setStartDate(newStartDate);
@@ -119,14 +143,55 @@ export default function CarDetails() {
     };
 
     const handleRentalSubmission = () => {
-        const options = {
-            method: 'GET',
-            url: 'http://localhost:8080/api/v1/rentals',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwt}`,
-            }
+        if (insuranceData.id === 'no-insurance') {
+            Swal2.fire({
+                title: 'Cannot rent this car',
+                text: 'You don\'t have a valid insurance. Click to navigate to the insurance page.',
+                icon: 'warning'
+            }).then(() => {
+                navigate('/insurance')
+            })
+            return;
         }
+
+        if (!checkInsuranceEligibility(insuranceData.insuranceType, carDetails.minimumInsuranceType)) {
+            Swal2.fire({
+                title: 'Cannot rent this car',
+                text: 'Your insurance minimum level is below the car\'s minimum insurance level',
+                icon: 'warning'
+            })
+            return;
+        }
+
+        const formData = {
+            startDate,
+            endDate,
+            carId: carDetails.id,
+            insuranceId: insuranceData.id
+        }
+        axios.post(
+            'http://localhost:8080/api/v1/rentals',
+            formData,
+            {
+                headers: {
+                    'Authorization': `Bearer ${jwt}`,
+                }
+            }
+        ).then(() => {
+            Swal2.fire({
+                title: 'Success',
+                text: 'Rental request sent successfully',
+                icon: 'success'
+            }).then(() => {
+                navigate('/')
+            })
+        }).catch(() => {
+            Swal2.fire({
+                title: 'Error',
+                text: 'There was an error. Please try again later',
+                icon: 'error'
+            })
+        })
     }
 
     return (
