@@ -1,5 +1,4 @@
-import {Button, IconButton, Option, Select, Tooltip, Typography} from "@material-tailwind/react";
-import InsuranceDialog from "./InsuranceDialog";
+import {Button, Option, Select, Typography} from "@material-tailwind/react";
 import DateTimePicker from "./DateTimePicker";
 import {useEffect, useState} from "react";
 import {isBefore, parseISO} from "date-fns";
@@ -14,7 +13,7 @@ export default function CreateInsuranceDialog() {
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [insuranceCompanies, setInsuranceCompanies] = useState([])
-    const [jwt, setJwt] = useState(localStorage.getItem('jwt'))
+    const [jwt] = useState(localStorage.getItem('jwt'))
     const [formValues, setFormValues] = useState({
         startDate: '',
         endDate: '',
@@ -104,7 +103,7 @@ export default function CreateInsuranceDialog() {
                 setInsurancePrice(res.data.price)
                 console.log(res.data.price)
             }).catch((err) => {
-                if (err.response.status === 400) {
+                if (err.response && err.response.status === 400) {
                     Swal2.fire({
                         title: 'Invalid data',
                         text: 'The minimum duration for an insurance is one week. Please adjust the dates and try again',
@@ -148,7 +147,7 @@ export default function CreateInsuranceDialog() {
                                 onChange={handleEndDateChange}
                                 minDate={startDate}
                                 value={endDate}
-                                name="endDate" />
+                                name="endDate"/>
                 <div className="flex flex-col gap-4 text-start">
                     <div className="flex flex-row gap-2">
                         <Select label="Insurance type"
@@ -159,7 +158,7 @@ export default function CreateInsuranceDialog() {
                             <Option value="MEDIUM">Medium</Option>
                             <Option value="PREMIUM">Premium</Option>
                         </Select>
-                        <InsuranceTypesDialog />
+                        <InsuranceTypesDialog/>
                     </div>
 
                     <Select label="Insurance company"

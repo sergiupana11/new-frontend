@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Typography } from "@material-tailwind/react";
+import {useNavigate} from 'react-router-dom';
+import {Typography} from "@material-tailwind/react";
 import defaultImage from '../images/defaultImage.jpeg'
 
 const CarCard = (props) => {
@@ -14,7 +14,6 @@ const CarCard = (props) => {
         hover:scale-105 transition-transform duration-300"
              onClick={() => navigate(`/cars/${car.id}`)}>
             <div className="flex">
-                {console.log(props.image)}
                 <div className="w-1/3">
                     <img
                         className="object-cover w-32 h-32"

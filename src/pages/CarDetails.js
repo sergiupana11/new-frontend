@@ -10,6 +10,7 @@ import {isBefore, parseISO} from 'date-fns';
 import Swal2 from "sweetalert2";
 import {checkInsuranceEligibility} from "../utils/constants";
 import {toSentenceCase} from "../utils/stringUtils";
+import EditCarDialog from "../components/EditCarDialog";
 
 // TODO: similar to Insurance, calculate the price and display it to the user before making the request
 //  - create my-cars page with the function to add new cars with images
@@ -22,6 +23,7 @@ import {toSentenceCase} from "../utils/stringUtils";
 //  - add option to edit or at least delete a car
 //  - on insurance page, check if the user has an active insurance. If yes, display his current insurance's details. else,
 //                                                                  display form to create a new one
+//  if I am the owner of the car, instead of the rent card, display nothing or let me update the car
 
 export default function CarDetails() {
 
@@ -44,6 +46,7 @@ export default function CarDetails() {
         numDoors: '',
         bodyType: '',
         minimumInsuranceType: '',
+        isOwner: false,
         imageIds: [],
     });
 
@@ -62,18 +65,9 @@ export default function CarDetails() {
         endDate: '',
         price: '',
     })
-    const [jwt, setJwt] = useState(localStorage.getItem('jwt'))
+    const [jwt] = useState(localStorage.getItem('jwt'))
 
     useEffect(() => {
-        const newJwt = localStorage.getItem('jwt')
-        if (newJwt !== jwt) {
-            setJwt(newJwt)
-        }
-        if (!jwt) {
-            notifyUserSessionExpired(navigate);
-            return;
-        }
-
         axios.get(
             'http://localhost:8080/api/v1/insurances',
             {
@@ -84,10 +78,6 @@ export default function CarDetails() {
         ).then((res) => {
             setInsuranceData(res.data)
         }).catch(() => {
-            setInsuranceData({
-                ...insuranceData,
-                id: 'no-insurance'
-            })
         })
 
         const options = {
@@ -131,7 +121,7 @@ export default function CarDetails() {
         }).finally(() => {
             setLoading(false);
         });
-    }, [carId, insuranceData, jwt, navigate]);
+    }, [carId, jwt, navigate]);
 
     const handleStartDateChange = (newStartDate) => {
         setStartDate(newStartDate);
@@ -141,7 +131,7 @@ export default function CarDetails() {
     };
 
     const handleRentalSubmission = () => {
-        if (insuranceData.id === 'no-insurance') {
+        if (insuranceData.id === '') {
             Swal2.fire({
                 title: 'Cannot rent this car',
                 text: 'You don\'t have a valid insurance. Click to navigate to the insurance page.',
@@ -250,27 +240,41 @@ export default function CarDetails() {
                                         </div>
 
                                         <div className="w-1/2 bg-gray-200 rounded-xl text-center p-10 shadow-xl">
-                                            <Typography variant="h2" color="blue-gray" className="m-2">
-                                                Rent now
-                                            </Typography>
-                                            <div className="flex flex-col mt-12">
-                                                <div className="m-2">
-                                                    <DateTimePicker label="Start date" onChange={handleStartDateChange}
-                                                                    value={startDate}/>
-                                                </div>
-                                                <div className="m-2">
-                                                    <DateTimePicker label="End date" onChange={setEndDate}
-                                                                    minDate={startDate}
-                                                                    value={endDate}/>
-                                                </div>
-                                            </div>
+                                            {
+                                                carDetails.isOwner ? (
+                                                    <div>
+                                                        <Typography variant="h2" color="blue-gray" className="m-2">
+                                                            You own this car
+                                                        </Typography>
+                                                        <EditCarDialog carId={carDetails.id}/>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <Typography variant="h2" color="blue-gray" className="m-2">
+                                                            Rent now
+                                                        </Typography>
+                                                        <div className="flex flex-col mt-12">
+                                                            <div className="m-2">
+                                                                <DateTimePicker label="Start date"
+                                                                                onChange={handleStartDateChange}
+                                                                                value={startDate}/>
+                                                            </div>
+                                                            <div className="m-2">
+                                                                <DateTimePicker label="End date" onChange={setEndDate}
+                                                                                minDate={startDate}
+                                                                                value={endDate}/>
+                                                            </div>
+                                                        </div>
 
-                                            <Button variant="filled"
-                                                    color="light-blue"
-                                                    className="mt-10 animate-pulse"
-                                                    onClick={handleRentalSubmission}>
-                                                Submit
-                                            </Button>
+                                                        <Button variant="filled"
+                                                                color="light-blue"
+                                                                className="mt-10"
+                                                                onClick={handleRentalSubmission}>
+                                                            Submit
+                                                        </Button>
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 </div>

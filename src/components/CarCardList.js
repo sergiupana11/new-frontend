@@ -4,6 +4,7 @@ import axios from "axios";
 import {notifyUserSessionExpired} from "../utils/jwtUtils";
 import {useNavigate} from "react-router-dom";
 import defaultImage from "../images/defaultImage.jpeg";
+import Swal2 from "sweetalert2";
 
 export default function CarCardList(props) {
 
@@ -37,8 +38,17 @@ export default function CarCardList(props) {
                 setCarsList(res.data)
                 console.log(res)
             }).catch((err) => {
-            if (err.response.status === 500) {
+            if (err.response && err.response.status === 500) {
                 notifyUserSessionExpired(navigate)
+            } else {
+                Swal2.fire({
+                        title: 'Server Error',
+                        text: 'Please try again later',
+                        icon: 'error'
+                    }
+                ).then(() => {
+                    navigate('/sign-in')
+                })
             }
             console.log(err)
         })
@@ -61,7 +71,6 @@ export default function CarCardList(props) {
 
                         axios.request(options).then((res) => {
                             imagesList[index] = URL.createObjectURL(res.data)
-
                         }).catch((err) => {
                             console.error('Error fetching image', err);
                             imagesList[index] = defaultImage; // Use default image if fetch fails

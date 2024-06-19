@@ -1,20 +1,12 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import axios from 'axios';
-import {
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    Dialog,
-    Input,
-    Option,
-    Select,
-    Textarea,
-    Typography
-} from "@material-tailwind/react";
+import {Button, Card, CardBody, CardFooter, Dialog, Typography} from "@material-tailwind/react";
+import Swal2 from "sweetalert2";
+import CarDataForm from "./CarDataForm";
 
 export function AddNewCarDialog() {
     const [token] = useState(localStorage.getItem('jwt'));
+    const [loading, setLoading] = useState(false)
     const [formValues, setFormValues] = useState({
         brand: '',
         model: '',
@@ -31,6 +23,7 @@ export function AddNewCarDialog() {
     });
     const [images, setImages] = useState([]);
     const [open, setOpen] = useState(false);
+
     const handleOpen = () => setOpen((cur) => !cur);
 
     const handleInputChange = (e) => {
@@ -44,33 +37,57 @@ export function AddNewCarDialog() {
         setImages(files);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
+        setLoading(true)
+        axios.post(
+            'http://localhost:8080/api/v1/cars',
+            formValues,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        ).then(async (res) => {
+            if (images.length > 0) {
+                await uploadImages(res.data.id)
+            }
+            setLoading(false)
+        }).catch(async () => {
+            setLoading(false)
+            await Swal2.fire({
+                title: 'Server error',
+                text: 'Please try again later',
+                icon: 'error'
+            })
+        })
+    }
+
+    const uploadImages = async (carId) => {
+        console.log('uploading images')
         const formData = new FormData();
+        formData.append('carId', carId)
         images.forEach((image) => {
             formData.append('images', image);
         });
-        Object.keys(formValues).forEach((key) => {
-            formData.append(key, formValues[key]);
-        });
 
-        try {
-            const response = await axios.post('http://localhost:8080/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            console.log(response.data);
-            // Handle success response (e.g., show a success message)
-        } catch (error) {
-            console.error('There was an error uploading the images:', error);
-            // Handle error response (e.g., show an error message)
-        }
+        axios.post('http://localhost:8080/api/v1/images', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+            }
+        }).then(() => {
+            handleOpen()
+            Swal2.fire({
+                title: 'Success',
+                text: 'Car added successfully',
+                icon: 'success'
+            }).then(() => {
+                window.location.reload()
+            })
+        }).catch((err) => {
+            console.error('There was an error uploading the images:', err);
+        })
     };
-
-    useEffect(() => {
-
-    }, [token]);
 
     return (
         <div className="p-4">
@@ -93,93 +110,8 @@ export function AddNewCarDialog() {
                         >
                             Complete all the details to add a new car
                         </Typography>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Input label="Brand"
-                                   size="lg"
-                                   name="brand"
-                                   onChange={handleInputChange}
-                                   required/>
-                            <Input label="Model"
-                                   size="lg"
-                                   name="model"
-                                   onChange={handleInputChange}
-                                   required/>
-                            <Input label="Model year"
-                                   size="lg"
-                                   name="modelYear"
-                                   onChange={handleInputChange}
-                                   required/>
-                            <Input label="Horsepower"
-                                   size="lg"
-                                   name="horsepower"
-                                   onChange={handleInputChange}
-                                   required/>
-                            <Input label="Number of kilometers"
-                                   name="numberOfKilometers"
-                                   onChange={handleInputChange}
-                                   size="lg" required/>
-                            <Input label="Fuel consumption"
-                                   name="fuelConsumption"
-                                   onChange={handleInputChange}
-                                   size="lg" required/>
-                            <Input label="Number of doors"
-                                   name="numDoors"
-                                   onChange={handleInputChange}
-                                   size="lg"
-                                   required/>
-                            <Select label="Fuel type"
-                                    onChange={(value) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            fuelType: value
-                                        });
-                                    }}
-                                    required>
-                                <Option value="PETROL">Petrol</Option>
-                                <Option value="DIESEL">Diesel</Option>
-                                <Option value="LPG">LPG</Option>
-                                <Option value="PETROL_HYBRID">Hybrid (Petrol + Electric)</Option>
-                                <Option value="DIESEL_HYBRID">Hybrid (Diesel + Electric)</Option>
-                                <Option value="ELECTRIC">Electric</Option>
-                                <Option value="OTHER">Other</Option>
-                            </Select>
-                            <Select label="Body type"
-                                    onChange={(value) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            bodyType: value
-                                        });
-                                    }}
-                                    required>
-                                <Option value="SEDAN">Sedan</Option>
-                                <Option value="COUPE">Coupe</Option>
-                                <Option value="CONVERTIBLE">Convertible</Option>
-                                <Option value="ESTATE">Estate</Option>
-                                <Option value="SUV">SUV</Option>
-                                <Option value="HATCHBACK">Hatchback</Option>
-                                <Option value="PICKUP">Pickup</Option>
-                                <Option value="MINIVAN">Minivan</Option>
-                            </Select>
-                            <Select label="Minimum insurance"
-                                    onChange={(value) => {
-                                        setFormValues({
-                                            ...formValues,
-                                            minimumInsuranceType: value
-                                        });
-                                    }}
-                                    required>
-                                <Option value="BASIC">Basic</Option>
-                                <Option value="MEDIUM">Medium</Option>
-                                <Option value="PREMIUM">Premium</Option>
-                            </Select>
-                        </div>
-                        <div className="flex flex-col gap-2 -mt-2">
-                            <Input label="Price per day (Euro)"
-                                   name="price"
-                                   onChange={handleInputChange}
-                                   required/>
-                            <Textarea label="Description" name="description" onChange={handleInputChange} required/>
-                        </div>
+                        <CarDataForm formValues={formValues} setFormValues={setFormValues}
+                                     handleInputChange={handleInputChange}/>
                         <div className="flex flex-col gap-2 mt-4">
                             <Typography variant="h6">Upload Images</Typography>
                             <input type="file" accept="image/*" multiple onChange={handleFileChange}/>

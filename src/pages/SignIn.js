@@ -14,7 +14,7 @@ export default function SignIn() {
     })
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormValues({...formValues, [name]: value});
     }
 
@@ -35,7 +35,7 @@ export default function SignIn() {
             navigate('/')
         } catch (err) {
             console.error('Error: ', err);
-            if (err.response.status === 400) {
+            if (err.response && err.response.status === 403) {
                 await Swal2.fire({
                     title: "Wrong username or password",
                     text: "Please check the data and try again.",
@@ -68,6 +68,10 @@ export default function SignIn() {
                     <Input label="Password" name="password" type="password" size="lg" required onChange={handleChange}/>
                     <Button onClick={handleSubmit} className="bg-blue-500 text-white px-6 py-2 rounded-xl">
                         Sign in
+                    </Button>
+                    <Button className="bg-gray-700 text-white px-6 py-2 rounded-xl"
+                            onClick={() => navigate('/register')}>
+                        Don't have an account? Register here
                     </Button>
                 </div>
             </div>
