@@ -6,6 +6,7 @@ import SignIn from "./pages/SignIn";
 import CarDetails from "./pages/CarDetails";
 import InsurancePage from "./pages/InsurancePage";
 import MyCars from "./pages/MyCars";
+import MyRentals from "./pages/MyRentals";
 
 // localhost:8080/api/v1/users
 
@@ -29,6 +30,9 @@ function App() {
 
                 <Route path="/my-cars"
                        element={<MyCars/>}/>
+
+                <Route path="/my-rentals"
+                       element={<MyRentals/>}/>
 
             </Routes>
         </BrowserRouter>

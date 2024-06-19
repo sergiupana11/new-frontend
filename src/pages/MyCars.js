@@ -20,7 +20,6 @@ export default function MyCars() {
                     My cars
                 </Typography>
             </div>
-            {/*TODO make this work*/}
             <AddNewCarDialog/>
 
             <CarCardList token={token} showMyCars/>

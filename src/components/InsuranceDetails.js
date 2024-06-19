@@ -27,7 +27,6 @@ export default function InsuranceDetails(props) {
                     <strong>Insurance company:</strong> {insurance.insuranceCompanyName}
                 </Typography>
                 <Typography>
-                    {/*TODO make date in format dd MON YYYY*/}
                     <strong>Valid from:</strong> {formatDate(insurance.startDate)}
                 </Typography>
                 <Typography>

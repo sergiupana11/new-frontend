@@ -1,4 +1,4 @@
-import {Button, Input, Option, Select, Spinner, Typography} from "@material-tailwind/react";
+import {Button, Input, Option, Select, Typography} from "@material-tailwind/react";
 import {useState} from "react";
 import axios from "axios";
 import Swal2 from "sweetalert2";
@@ -20,7 +20,7 @@ export default function Register() {
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormValues({...formValues, [name]: value});
     }
 
@@ -75,7 +75,8 @@ export default function Register() {
                 </div>
                 <div className="flex flex-col gap-4 px-10">
                     <Input label="Phone number" name="phoneNumber" size="lg" required onChange={handleChange}/>
-                    <Input label="Driving licence number" name="drivingLicenceNumber" size="lg" required onChange={handleChange}/>
+                    <Input label="Driving licence number" name="drivingLicenceNumber" size="lg" required
+                           onChange={handleChange}/>
                     <Select label="Gender" name="gender" size="lg" required onChange={handleSelectChange}>
                         <Option value="MALE">Male</Option>
                         <Option value="FEMALE">Female</Option>
@@ -88,11 +89,15 @@ export default function Register() {
                         color="gray"
                         className="mt-2 flex items-center gap-1 font-normal"
                     >
-                        <InfoIcon />
+                        <InfoIcon/>
                         Password should have at least 6 characters.
                     </Typography>
                     <Button onClick={handleSubmit} className="bg-blue-500 text-white px-6 py-2 rounded-xl">
                         Create account
+                    </Button>
+                    <Button className="bg-gray-700 text-white px-6 py-2 rounded-xl"
+                            onClick={() => navigate('/sign-in')}>
+                        Already have an account? Log in
                     </Button>
                 </div>
             </div>

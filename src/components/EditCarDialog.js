@@ -1,25 +1,13 @@
 import {Button, Card, CardBody, CardFooter, Dialog, Typography} from "@material-tailwind/react";
 import React, {useState} from "react";
-import axios from "axios";
 import CarDataForm from "./CarDataForm";
+import Swal2 from "sweetalert2";
+import axios from "axios";
 
 export default function EditCarDialog(props) {
     const [token] = useState(localStorage.getItem('jwt'))
     const [open, setOpen] = useState(false);
-    const [formValues, setFormValues] = useState({
-        brand: '',
-        model: '',
-        fuelType: '',
-        horsepower: '',
-        description: '',
-        price: '',
-        modelYear: '',
-        numberOfKilometers: '',
-        fuelConsumption: '',
-        numDoors: '',
-        bodyType: '',
-        minimumInsuranceType: ''
-    });
+    const [formValues, setFormValues] = useState(props.formValues);
 
     const handleOpen = () => setOpen((cur) => !cur);
 
@@ -29,6 +17,7 @@ export default function EditCarDialog(props) {
     };
 
     const handleSubmit = () => {
+        console.log(formValues)
         axios.put(
             `http://localhost:8080/api/v1/cars/${props.carId}`,
             formValues,
@@ -37,7 +26,23 @@ export default function EditCarDialog(props) {
                     'Authorization': `Bearer ${token}`
                 }
             }
-        )
+        ).then(() => {
+            handleOpen()
+            Swal2.fire({
+                title: 'Success!',
+                text: 'Car updated successfully',
+                icon: 'success'
+            }).then(() => {
+                window.location.reload()
+            })
+        }).catch(async () => {
+            handleOpen()
+            await Swal2.fire({
+                title: 'Success!',
+                text: 'Car updated successfully',
+                icon: 'success'
+            })
+        })
     }
 
     return (

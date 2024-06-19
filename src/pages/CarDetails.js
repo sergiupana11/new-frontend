@@ -9,8 +9,9 @@ import DateTimePicker from "../components/DateTimePicker";
 import {isBefore, parseISO} from 'date-fns';
 import Swal2 from "sweetalert2";
 import {checkInsuranceEligibility} from "../utils/constants";
-import {toSentenceCase} from "../utils/stringUtils";
 import EditCarDialog from "../components/EditCarDialog";
+import {mapFuelTypeToString} from "../utils/enumUtils";
+import {toSentenceCase} from "../utils/stringUtils";
 
 // TODO: similar to Insurance, calculate the price and display it to the user before making the request
 //  - create my-cars page with the function to add new cars with images
@@ -34,6 +35,7 @@ export default function CarDetails() {
         id: '',
         ownerId: '',
         ownerName: '',
+        ownerPhoneNumber: '',
         brand: '',
         model: '',
         fuelType: '',
@@ -89,9 +91,6 @@ export default function CarDetails() {
         };
 
         axios.request(options).then(async (res) => {
-            res.data.fuelType = toSentenceCase(res.data.fuelType);
-            res.data.bodyType = toSentenceCase(res.data.bodyType);
-            res.data.minimumInsuranceType = toSentenceCase(res.data.minimumInsuranceType);
             setCarDetails(res.data);
 
             // Fetch each image and add it to the images state
@@ -209,14 +208,32 @@ export default function CarDetails() {
                                             {carDetails.brand} {carDetails.model}
                                         </Typography>
 
-                                        <Typography variant="h6" color="blue-gray" className="m-2">
-                                            Owner: {carDetails.ownerName}
-                                        </Typography>
+                                        <div className="grid grid-cols-2 gap-4 bg-gray-200 rounded-xl m-4 shadow">
+                                            <div>
+                                                <Typography variant="h6" color="blue-gray" className="m-2">
+                                                    Owner:
+                                                </Typography>
+                                                <Typography variant="small">
+                                                    {carDetails.ownerName}
+                                                </Typography>
+                                            </div>
+                                            
+                                            <div>
+                                                <Typography variant="h6" color="blue-gray" className="m-2">
+                                                    Phone number:
+                                                </Typography>
+                                                <Typography variant="small">
+                                                    {carDetails.ownerPhoneNumber}
+                                                </Typography>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div
-                                        className="grid grid-cols-3 gap-8 mx-4 bg-gray-200 rounded-xl text-center p-8 shadow-xl">
-                                        <div><strong>Fuel Type:</strong> {carDetails.fuelType}</div>
+                                        className="grid grid-cols-3 gap-8 mx-4 bg-gray-200 rounded-xl text-center p-8 shadow">
+                                        <div><strong>Fuel
+                                            Type:</strong> {mapFuelTypeToString(carDetails.fuelType)}
+                                        </div>
                                         <div><strong>Horsepower:</strong> {carDetails.horsepower} HP</div>
                                         <div><strong>Price:</strong> {carDetails.price} € / day</div>
                                         <div><strong>Model Year:</strong> {carDetails.modelYear}</div>
@@ -224,13 +241,14 @@ export default function CarDetails() {
                                         <div><strong>Fuel Consumption:</strong> {carDetails.fuelConsumption} %
                                         </div>
                                         <div><strong>Number of Doors:</strong> {carDetails.numDoors}</div>
-                                        <div><strong>Body Type:</strong> {carDetails.bodyType}</div>
-                                        <div><strong>Minimum Insurance:</strong> {carDetails.minimumInsuranceType}
+                                        <div><strong>Body Type:</strong> {toSentenceCase(carDetails.bodyType)}</div>
+                                        <div><strong>Minimum
+                                            Insurance:</strong> {toSentenceCase(carDetails.minimumInsuranceType)}
                                         </div>
                                     </div>
 
                                     <div className="mt-4 flex flex-row gap-8 mx-4 justify-between mb-10">
-                                        <div className="w-1/2 bg-gray-200 p-10 rounded-xl shadow-xl">
+                                        <div className="w-1/2 bg-gray-200 p-10 rounded-xl shadow">
                                             <Typography variant="h2" color="blue-gray" className="m-2 text-center">
                                                 Description
                                             </Typography>
@@ -239,14 +257,14 @@ export default function CarDetails() {
                                             </Typography>
                                         </div>
 
-                                        <div className="w-1/2 bg-gray-200 rounded-xl text-center p-10 shadow-xl">
+                                        <div className="w-1/2 bg-gray-200 rounded-xl text-center p-10 shadow">
                                             {
                                                 carDetails.isOwner ? (
                                                     <div>
                                                         <Typography variant="h2" color="blue-gray" className="m-2">
                                                             You own this car
                                                         </Typography>
-                                                        <EditCarDialog carId={carDetails.id}/>
+                                                        <EditCarDialog formValues={carDetails} carId={carDetails.id}/>
                                                     </div>
                                                 ) : (
                                                     <div>

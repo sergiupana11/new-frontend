@@ -1,11 +1,6 @@
 import React from "react";
-import {
-    Navbar,
-    Collapse,
-    Typography,
-    IconButton, Button,
-} from "@material-tailwind/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import {Button, Collapse, IconButton, Navbar, Typography,} from "@material-tailwind/react";
+import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/outline";
 import {useNavigate} from "react-router-dom";
 
 // TODO: make navbar functional
@@ -35,7 +30,7 @@ function NavList() {
                 color="blue-gray"
                 className="p-1 font-medium"
             >
-                <a href="my-rentals" className="flex items-center hover:text-blue-500 transition-colors">
+                <a href="/my-rentals" className="flex items-center hover:text-blue-500 transition-colors">
                     My Rentals
                 </a>
             </Typography>
@@ -101,7 +96,7 @@ export function NavbarSimple() {
                     Wheelshare
                 </Typography>
                 <div className="hidden lg:block">
-                    <NavList />
+                    <NavList/>
                 </div>
                 <IconButton
                     variant="text"
@@ -110,14 +105,14 @@ export function NavbarSimple() {
                     onClick={() => setOpenNav(!openNav)}
                 >
                     {openNav ? (
-                        <XMarkIcon className="h-6 w-6" strokeWidth={2} />
+                        <XMarkIcon className="h-6 w-6" strokeWidth={2}/>
                     ) : (
-                        <Bars3Icon className="h-6 w-6" strokeWidth={2} />
+                        <Bars3Icon className="h-6 w-6" strokeWidth={2}/>
                     )}
                 </IconButton>
             </div>
             <Collapse open={openNav}>
-                <NavList />
+                <NavList/>
             </Collapse>
         </Navbar>
     );
