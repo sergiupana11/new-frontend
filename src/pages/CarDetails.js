@@ -172,12 +172,20 @@ export default function CarDetails() {
             }).then(() => {
                 navigate('/')
             })
-        }).catch(() => {
-            Swal2.fire({
-                title: 'Error',
-                text: 'There was an error. Please try again later',
-                icon: 'error'
-            })
+        }).catch(async (err) => {
+            if (err.response && err.response.status === 409) {
+                await Swal2.fire({
+                    title: 'Cannot rent this car',
+                    text: 'The car is already rented in that time frame. Please choose another date',
+                    icon: 'warning'
+                })
+            } else {
+                await Swal2.fire({
+                    title: 'Error',
+                    text: 'There was an error. Please try again later',
+                    icon: 'error'
+                })
+            }
         })
     }
 
@@ -217,7 +225,7 @@ export default function CarDetails() {
                                                     {carDetails.ownerName}
                                                 </Typography>
                                             </div>
-                                            
+
                                             <div>
                                                 <Typography variant="h6" color="blue-gray" className="m-2">
                                                     Phone number:

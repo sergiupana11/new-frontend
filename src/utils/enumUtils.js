@@ -1,3 +1,5 @@
+import {ACCEPT_ACTION, CANCEL_ACTION, DECLINE_ACTION} from "./constants";
+
 export function mapFuelTypeToString(fuelType) {
     switch (fuelType) {
         case 'PETROL': {
@@ -47,5 +49,18 @@ export function mapStringToFuelType(str) {
         default: {
             return 'OTHER'
         }
+    }
+}
+
+export function mapActionToAlertText(action) {
+    switch (action) {
+        case ACCEPT_ACTION:
+            return "Rental successfully accepted"
+        case DECLINE_ACTION:
+            return "Rental successfully declined"
+        case CANCEL_ACTION:
+            return "Rental successfully cancelled"
+        default:
+            return "Action successful"
     }
 }

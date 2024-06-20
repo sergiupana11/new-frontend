@@ -7,3 +7,7 @@ export const insuranceLevels = {
 export const checkInsuranceEligibility = (userInsuranceType, carMinimumInsuranceType) => {
     return insuranceLevels[userInsuranceType] >= insuranceLevels[carMinimumInsuranceType]
 }
+
+export const ACCEPT_ACTION = 'ACCEPT'
+export const DECLINE_ACTION = 'DECLINE'
+export const CANCEL_ACTION = 'CANCEL'
