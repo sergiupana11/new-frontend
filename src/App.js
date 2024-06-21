@@ -7,10 +7,8 @@ import CarDetails from "./pages/CarDetails";
 import InsurancePage from "./pages/InsurancePage";
 import MyCars from "./pages/MyCars";
 import MyRentals from "./pages/MyRentals";
-import {Reviews} from "./pages/Reviews";
+import MyReviews from "./pages/MyReviews";
 import Profile from "./pages/Profile";
-
-// localhost:8080/api/v1/users
 
 function App() {
     return (
@@ -40,7 +38,7 @@ function App() {
                        element={<Profile/>}/>
 
                 <Route path="/profile/reviews"
-                       element={<Reviews/>}/>
+                       element={<MyReviews/>}/>
 
             </Routes>
         </BrowserRouter>

@@ -1,35 +1,24 @@
 import {NavbarSimple} from "../components/Navbar";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {notifyUserSessionExpired} from "../utils/jwtUtils";
 import axios from "axios";
-import {Button, Carousel, Spinner, Typography} from "@material-tailwind/react";
+import {Button, Card, Carousel, Spinner, Typography} from "@material-tailwind/react";
 import defaultImage from '../images/carPlaceholder.jpeg';
 import DateTimePicker from "../components/DateTimePicker";
-import {isBefore, parseISO} from 'date-fns';
+import {format, isBefore, parseISO} from 'date-fns';
 import Swal2 from "sweetalert2";
 import {checkInsuranceEligibility} from "../utils/constants";
 import EditCarDialog from "../components/EditCarDialog";
 import {mapFuelTypeToString} from "../utils/enumUtils";
 import {toSentenceCase} from "../utils/stringUtils";
-
-// TODO: similar to Insurance, calculate the price and display it to the user before making the request
-//  - create my-cars page with the function to add new cars with images
-//  - create my-rentals page where you can see your rental offers and offers to accept / decline
-//  - on the my-rentals page, if you are the renter, you can cancel the request no matter the status (ACCEPTED or PENDING)
-//                            if you are the renter, you can only ACCEPT / DECLINE if it is PENDING, or CANCEL if it is ACCEPTED
-//  - profile page where you can see your personal information and reviews, both given by you to others and given by others to you
-//  - on my-rentals page, add a button to create review (use form dialog modal)
-//  - for ADMIN user, when logging in (so in the SignIn page) redirect him to /admin page where he can add insurance companies
-//  - add option to edit or at least delete a car
-//  - on insurance page, check if the user has an active insurance. If yes, display his current insurance's details. else,
-//                                                                  display form to create a new one
-//  if I am the owner of the car, instead of the rent card, display nothing or let me update the car
+import {StarIcon} from "@heroicons/react/24/solid"; // Import the StarIcon from Heroicons
 
 export default function CarDetails() {
 
     const navigate = useNavigate()
     const {carId} = useParams();
+    const reviewsRef = useRef(null); // Create a reference for the reviews section
 
     const [carDetails, setCarDetails] = useState({
         id: '',
@@ -66,7 +55,9 @@ export default function CarDetails() {
         startDate: '',
         endDate: '',
         price: '',
-    })
+    });
+    const [reviews, setReviews] = useState([]);
+    const [averageRating, setAverageRating] = useState(0);
     const [jwt] = useState(localStorage.getItem('jwt'))
 
     useEffect(() => {
@@ -80,7 +71,7 @@ export default function CarDetails() {
         ).then((res) => {
             setInsuranceData(res.data)
         }).catch(() => {
-        })
+        });
 
         const options = {
             method: 'GET',
@@ -120,6 +111,20 @@ export default function CarDetails() {
         }).finally(() => {
             setLoading(false);
         });
+
+        // Fetch reviews for the car
+        axios.get(`http://localhost:8080/api/v1/reviews/cars/${carId}`, {
+            headers: {
+                'Authorization': `Bearer ${jwt}`,
+            }
+        }).then((res) => {
+            setReviews(res.data.reviews);
+            setAverageRating(res.data.rating);  // Set the average rating
+            console.log(res.data.reviews[0])
+        }).catch((err) => {
+            console.error('Error fetching car reviews', err);
+        });
+
     }, [carId, jwt, navigate]);
 
     const handleStartDateChange = (newStartDate) => {
@@ -189,6 +194,10 @@ export default function CarDetails() {
         })
     }
 
+    const scrollToReviews = () => {
+        reviewsRef.current.scrollIntoView({behavior: 'smooth'});
+    };
+
     return (
         <div>
             <NavbarSimple/>
@@ -215,6 +224,20 @@ export default function CarDetails() {
                                         <Typography variant="h1" textGradient color="blue-gray" className="m-2">
                                             {carDetails.brand} {carDetails.model}
                                         </Typography>
+                                        <div className="flex items-center justify-center mt-2">
+                                            <StarIcon className="h-6 w-6 text-yellow-700"/>
+                                            {averageRating ? (
+                                                <Typography variant="h6" color="blue-gray"
+                                                            className="ml-2  cursor-pointer"
+                                                            onClick={scrollToReviews}>
+                                                    {averageRating.toFixed(1)} / 5
+                                                </Typography>
+                                            ) : (
+                                                <Typography variant="h6" color="blue-gray" className="ml-2">
+                                                    No reviews yet
+                                                </Typography>
+                                            )}
+                                        </div>
 
                                         <div className="grid grid-cols-2 gap-4 bg-gray-200 rounded-xl m-4 shadow">
                                             <div>
@@ -305,6 +328,36 @@ export default function CarDetails() {
                                     </div>
                                 </div>
                             </div>
+                            {reviews.length > 0 && <div className="mt-10" ref={reviewsRef}>
+                                <Typography variant="h2" color="blue-gray" className="m-4 text-center">
+                                    Reviews
+                                </Typography>
+                                <div className="flex flex-col space-y-4">
+                                    {reviews.map((review) => (
+                                        <Card key={review.id} className="flex flex-row p-4 shadow-lg">
+                                            <div className="w-1/4">
+                                                <Typography variant="h6" color="blue-gray" className="mb-2">
+                                                    {review.posterName}
+                                                </Typography>
+                                                <Typography variant="body2" color="blue-gray" className="mb-2">
+                                                    {format(new Date(review.dateCreated), "dd-MMM-yyyy HH:mm")}
+                                                </Typography>
+                                                <Typography variant="body2" color="blue-gray" className="mb-2">
+                                                    Rating: {review.rating}
+                                                </Typography>
+                                            </div>
+                                            <div className="w-3/4">
+                                                <Typography variant="h6" color="blue-gray" className="mb-2">
+                                                    {review.title || "Review"}
+                                                </Typography>
+                                                <Typography variant="body2" color="blue-gray">
+                                                    {review.text}
+                                                </Typography>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>}
                         </div>
                     )
                 }

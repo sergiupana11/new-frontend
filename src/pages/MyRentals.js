@@ -14,17 +14,11 @@ import {
     Tooltip,
     Typography,
 } from "@material-tailwind/react";
-import {
-    ArrowDownIcon,
-    ArrowUpIcon,
-    ChatBubbleBottomCenterTextIcon,
-    CheckIcon,
-    NoSymbolIcon,
-    XMarkIcon,
-} from "@heroicons/react/24/solid";
+import {ArrowDownIcon, ArrowUpIcon, CheckIcon, NoSymbolIcon, XMarkIcon,} from "@heroicons/react/24/solid";
 import {format} from "date-fns";
 import {ACCEPT_ACTION, CANCEL_ACTION, DECLINE_ACTION} from "../utils/constants";
 import {mapActionToAlertText} from "../utils/enumUtils";
+import ReviewDialog from "../components/ReviewDialog";
 
 export default function MyRentals() {
     const navigate = useNavigate();
@@ -70,10 +64,6 @@ export default function MyRentals() {
 
     const handleCancel = (id) => {
         submitAction(id, CANCEL_ACTION);
-    };
-
-    const handleLeaveReview = (id) => {
-        console.log(`Leave review for request ${id}`);
     };
 
     const submitAction = (rentalId, action) => {
@@ -135,6 +125,9 @@ export default function MyRentals() {
 
         if (currentView === "outgoing") {
             if (rental.status === "PENDING" || (rental.status === "ACCEPTED" && now < startDate)) {
+                if (rental.price === 100) {
+                    console.log(rental.id)
+                }
                 return (
                     <Tooltip content="Cancel">
                         <IconButton
@@ -147,17 +140,10 @@ export default function MyRentals() {
                         </IconButton>
                     </Tooltip>
                 );
-            } else if (now >= startDate) {
+            } else if (rental.status === "COMPLETED") {
                 return (
                     <Tooltip content="Leave a Review">
-                        <IconButton
-                            onClick={() => handleLeaveReview(rental.id)}
-                            variant="outlined"
-                            color="purple"
-                            className="mx-10"
-                        >
-                            <ChatBubbleBottomCenterTextIcon className="w-5 h-5"/>
-                        </IconButton>
+                        <ReviewDialog iconButton id={rental.id}/>
                     </Tooltip>
                 );
             }
@@ -205,14 +191,7 @@ export default function MyRentals() {
             } else if (rental.status === "ACCEPTED" && now >= startDate) {
                 return (
                     <Tooltip content="Leave a Review">
-                        <IconButton
-                            onClick={() => handleLeaveReview(rental.id)}
-                            variant="outlined"
-                            color="purple"
-                            className="mx-8"
-                        >
-                            <ChatBubbleBottomCenterTextIcon className="w-5 h-5"/>
-                        </IconButton>
+                        <ReviewDialog iconButton id={rental.id}/>
                     </Tooltip>
                 );
             }

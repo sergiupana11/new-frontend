@@ -70,11 +70,11 @@ export default function ChangeProfilePictureDialog(props) {
                         </div>
                     </CardBody>
                     <CardFooter className="pt-0">
-                        {imageFile ? (
+                        {imageFile &&
                             <Button variant="gradient" fullWidth onClick={handleSubmit}>
                                 Submit
                             </Button>
-                        ) : <Typography>No image uploaded yet.</Typography>}
+                        }
                     </CardFooter>
                 </Card>
             </Dialog>

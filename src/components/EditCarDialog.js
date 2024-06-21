@@ -47,7 +47,7 @@ export default function EditCarDialog(props) {
 
     return (
         <div className="p-4">
-            <Button onClick={handleOpen}>Edit car</Button>
+            <Button onClick={handleOpen}>Edit details</Button>
             <Dialog
                 size="md"
                 open={open}
