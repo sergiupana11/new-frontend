@@ -4,7 +4,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {notifyUserSessionExpired} from "../utils/jwtUtils";
 import axios from "axios";
 import {Button, Carousel, Spinner, Typography} from "@material-tailwind/react";
-import defaultImage from '../images/defaultImage.jpeg';
+import defaultImage from '../images/carPlaceholder.jpeg';
 import DateTimePicker from "../components/DateTimePicker";
 import {isBefore, parseISO} from 'date-fns';
 import Swal2 from "sweetalert2";

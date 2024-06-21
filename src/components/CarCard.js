@@ -1,7 +1,7 @@
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import {Typography} from "@material-tailwind/react";
-import defaultImage from '../images/defaultImage.jpeg'
+import defaultImage from '../images/carPlaceholder.jpeg'
 
 const CarCard = (props) => {
     const navigate = useNavigate();

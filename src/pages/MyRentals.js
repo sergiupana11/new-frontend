@@ -61,61 +61,80 @@ export default function MyRentals() {
     }, [navigate, token]);
 
     const handleAccept = (id) => {
-        // Add your logic to accept a rental request
-        submitAction(id, ACCEPT_ACTION)
-        console.log(`Accept request ${id}`);
+        submitAction(id, ACCEPT_ACTION);
     };
 
     const handleDecline = (id) => {
-        // Add your logic to decline a rental request
-        submitAction(id, DECLINE_ACTION)
-        console.log(`Decline request ${id}`);
+        submitAction(id, DECLINE_ACTION);
     };
 
     const handleCancel = (id) => {
-        // Add your logic to cancel a rental request
-        submitAction(id, CANCEL_ACTION)
-        console.log(`Cancel request ${id}`);
+        submitAction(id, CANCEL_ACTION);
     };
 
     const handleLeaveReview = (id) => {
-        // Add your logic to leave a review
         console.log(`Leave review for request ${id}`);
     };
 
     const submitAction = (rentalId, action) => {
         const reqBody = {
             rentalId,
-            action
-        }
+            action,
+        };
 
-        axios.patch('http://localhost:8080/api/v1/rentals',
-            reqBody, {
+        const getStatusFromAction = (action) => {
+            switch (action) {
+                case ACCEPT_ACTION:
+                    return "ACCEPTED";
+                case DECLINE_ACTION:
+                    return "DECLINED";
+                case CANCEL_ACTION:
+                    return "CANCELLED";
+                default:
+                    return "";
+            }
+        };
+
+        axios
+            .patch("http://localhost:8080/api/v1/rentals", reqBody, {
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }).then(() => {
-            Swal2.fire({
-                title: 'Success',
-                text: mapActionToAlertText(action),
-                icon: 'success'
-            }).then(() => {
-                window.location.reload()
+                    Authorization: `Bearer ${token}`,
+                },
             })
-        }).catch((err) => {
-            console.log(err)
-        })
-    }
+            .then(() => {
+                Swal2.fire({
+                    title: "Success",
+                    text: mapActionToAlertText(action),
+                    icon: "success",
+                });
+
+                // Update the rentals data in state
+                setRentalsData((prevState) => {
+                    const updateRentals = (rentals) => {
+                        return rentals.map((rental) =>
+                            rental.id === rentalId
+                                ? {...rental, status: getStatusFromAction(action)}
+                                : rental
+                        );
+                    };
+
+                    return {
+                        incoming: updateRentals(prevState.incoming),
+                        outgoing: updateRentals(prevState.outgoing),
+                    };
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const renderActions = (rental, currentView) => {
         const now = new Date();
         const startDate = new Date(rental.startDate);
 
         if (currentView === "outgoing") {
-            if (
-                rental.status === "PENDING" ||
-                (rental.status === "ACCEPTED" && now < startDate)
-            ) {
+            if (rental.status === "PENDING" || (rental.status === "ACCEPTED" && now < startDate)) {
                 return (
                     <Tooltip content="Cancel">
                         <IconButton
@@ -210,14 +229,7 @@ export default function MyRentals() {
     };
 
     const renderTable = (rentals, currentView) => {
-        const TABLE_HEAD = [
-            "Car",
-            "Start Date",
-            "End Date",
-            "Total Price",
-            "Status",
-            "Actions",
-        ];
+        const TABLE_HEAD = ["Car", "Start Date", "End Date", "Total Price", "Status", "Actions"];
 
         return (
             <Card className="h-full w-full overflow-scroll">
@@ -261,48 +273,26 @@ export default function MyRentals() {
                                     </Typography>
                                 </td>
                                 <td className={classes}>
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-normal"
-                                    >
+                                    <Typography variant="small" color="blue-gray" className="font-normal">
                                         {format(new Date(rental.startDate), "dd-MMM-yyyy HH:mm")}
                                     </Typography>
                                 </td>
                                 <td className={classes}>
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-normal"
-                                    >
+                                    <Typography variant="small" color="blue-gray" className="font-normal">
                                         {format(new Date(rental.endDate), "dd-MMM-yyyy HH:mm")}
                                     </Typography>
                                 </td>
                                 <td className={classes}>
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-normal"
-                                    >
-                                        ${calculateTotalPrice(
-                                        rental.startDate,
-                                        rental.endDate,
-                                        rental.price
-                                    )}
+                                    <Typography variant="small" color="blue-gray" className="font-normal">
+                                        ${calculateTotalPrice(rental.startDate, rental.endDate, rental.price)}
                                     </Typography>
                                 </td>
                                 <td className={classes}>
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-normal"
-                                    >
+                                    <Typography variant="small" color="blue-gray" className="font-normal">
                                         {rental.status}
                                     </Typography>
                                 </td>
-                                <td className={classes}>
-                                    {renderActions(rental, currentView)}
-                                </td>
+                                <td className={classes}>{renderActions(rental, currentView)}</td>
                             </tr>
                         );
                     })}
@@ -332,12 +322,8 @@ export default function MyRentals() {
                         </Tab>
                     </TabsHeader>
                     <TabsBody>
-                        <TabPanel value="outgoing">
-                            {renderTable(rentalsData.outgoing, "outgoing")}
-                        </TabPanel>
-                        <TabPanel value="incoming">
-                            {renderTable(rentalsData.incoming, "incoming")}
-                        </TabPanel>
+                        <TabPanel value="outgoing">{renderTable(rentalsData.outgoing, "outgoing")}</TabPanel>
+                        <TabPanel value="incoming">{renderTable(rentalsData.incoming, "incoming")}</TabPanel>
                     </TabsBody>
                 </Tabs>
             </div>

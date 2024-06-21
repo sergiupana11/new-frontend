@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import {notifyUserSessionExpired} from "../utils/jwtUtils";
 import {useNavigate} from "react-router-dom";
-import defaultImage from "../images/defaultImage.jpeg";
+import defaultImage from "../images/carPlaceholder.jpeg";
 import Swal2 from "sweetalert2";
 
 export default function CarCardList(props) {
@@ -12,7 +12,7 @@ export default function CarCardList(props) {
 
     const [carsList, setCarsList] = useState([])
     const [token] = useState(localStorage.getItem('jwt'))
-    const [imagesList] = useState([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         function getRequestUrl(showMyCars) {
@@ -58,27 +58,13 @@ export default function CarCardList(props) {
     return (
         <div className="bg-gray-200 grid grid-cols-4 gap-10 p-8">
             {
-                carsList.map((car, index) => {
-                    if (car.mainImageId) {
-                        const options = {
-                            method: 'GET',
-                            url: `http://localhost:8080/api/v1/images/${car.mainImageId}`,
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                            },
-                            responseType: 'blob'
-                        }
-
-                        axios.request(options).then((res) => {
-                            imagesList[index] = URL.createObjectURL(res.data)
-                        }).catch((err) => {
-                            console.error('Error fetching image', err);
-                            imagesList[index] = defaultImage; // Use default image if fetch fails
-                        });
+                loading && carsList.map((car, index) => {
+                    if (index === carsList.length) {
+                        setLoading(false)
                     }
-
                     return (
-                        <CarCard car={car} image={imagesList[index]}/>
+                        <CarCard car={car}
+                                 image={car.mainImageId ? `http://localhost:8080/api/v1/images/${car.mainImageId}` : defaultImage}/>
                     )
                 })
             }
